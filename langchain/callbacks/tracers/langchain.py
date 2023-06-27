@@ -11,13 +11,10 @@ from uuid import UUID
 from langchainplus_sdk import LangChainPlusClient
 
 from langchain.callbacks.tracers.base import BaseTracer
-from langchain.callbacks.tracers.schemas import (
-    Run,
-    RunTypeEnum,
-    TracerSession,
-)
+from langchain.callbacks.tracers.schemas import Run, RunTypeEnum, TracerSession
 from langchain.env import get_runtime_environment
-from langchain.schema import BaseMessage, messages_to_dict
+from langchain.load.dump import dumpd
+from langchain.schema import BaseMessage
 
 logger = logging.getLogger(__name__)
 _LOGGED = set()
@@ -82,9 +79,7 @@ class LangChainTracer(BaseTracer):
             id=run_id,
             parent_run_id=parent_run_id,
             serialized=serialized,
-            inputs={
-                "messages": [[msg.to_json() for msg in batch] for batch in messages]
-            },
+            inputs={"messages": [[dumpd(msg) for msg in batch] for batch in messages]},
             extra=kwargs,
             start_time=datetime.utcnow(),
             execution_order=execution_order,
